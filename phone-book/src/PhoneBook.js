@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import Card from './Card';
+import CardStock from './CardStock';
 import Button from '@mui/joy/Button';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
@@ -10,17 +10,11 @@ import Stack from '@mui/joy/Stack';
 import Add from '@mui/icons-material/Add';
 import Typography from '@mui/joy/Typography';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
+import { v4 as uuid } from 'uuid';
 
 const PhoneBook = () => {
 
-    const [people, setPeople] = useState([
-        {
-            name: "Brody",
-            phone: "4083911445",
-            email: "uehruehjr@gmail.com",
-            priority: true,
-        }
-    ]);
+    const [people, setPeople] = useState([]);
 
     const [userName, setName] = useState('');
     const [userNumber, setNum] = useState('');
@@ -30,6 +24,28 @@ const PhoneBook = () => {
 
     const handleAdd = () => {
         setOpenModal(true);
+    }
+
+    const handleDelete = (id) => {
+        let temp = [...people];
+        for(let i = 0; i < people.length; i++) {
+            if(temp[i].id == id) {
+                temp.splice(i, 1);
+                break;
+            }
+        }
+        setPeople(temp);
+    }
+
+    const handlePriority = (id) => {
+        let temp = [...people];
+        for(let i = 0; i < people.length; i++) {
+            if(temp[i].id == id) {
+                temp[i].priority = !temp[i].priority;
+                break;
+            }
+        }
+        setPeople(temp);
     }
 
 
@@ -51,12 +67,14 @@ const PhoneBook = () => {
           <form
             onSubmit={(event) => {
               event.preventDefault();
+              const myId = uuid();
               setOpenModal(false);
               setPeople([...people, {
                 name: userName,
                 number: userNumber,
                 email: userEmail,
-                priority: false
+                priority: false,
+                id: myId
               }]);
 
               setName('');
@@ -86,12 +104,14 @@ const PhoneBook = () => {
       </Modal>
 :
     <div className='flex flex-col items-center mt-[50px]'>
-        <Button onClick={handleAdd} variant="outlined" color='neutral' sx={{ width: "200px", justifyContent: "space-around", marginBottom: "30px"}}>Add Person <AddRoundedIcon /></Button>
+        <Button onClick={handleAdd} variant="solid" color='primary' sx={{ width: "200px", justifyContent: "space-around", marginBottom: "30px"}}>Add Person <AddRoundedIcon /></Button>
+        <div className='overflow-auto h-[65vh] '>
         {
             people.map((person) => {
-                return <Card person={person}/>
+                return <CardStock handlePriority={handlePriority} handleDelete={handleDelete} person={person}/>
             })
         }
+        </div>
     </div>
     }
     </>
