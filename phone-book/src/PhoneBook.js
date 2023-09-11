@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import CardStock from './CardStock';
 import Button from '@mui/joy/Button';
 import FormControl from '@mui/joy/FormControl';
@@ -11,6 +11,7 @@ import Add from '@mui/icons-material/Add';
 import Typography from '@mui/joy/Typography';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import { v4 as uuid } from 'uuid';
+import axios from "axios"
 
 const PhoneBook = () => {
 
@@ -22,11 +23,20 @@ const PhoneBook = () => {
 
     const [openModal, setOpenModal] = useState(false);
 
+    useEffect(() => {
+      const getPeople = async () => {
+        const res = await axios.get("http://localhost:8800/people");
+        setPeople(res.data);
+      }
+
+      getPeople();
+    }, [people])
+
     const handleAdd = () => {
         setOpenModal(true);
     }
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         let temp = [...people];
         for(let i = 0; i < people.length; i++) {
             if(temp[i].id == id) {
@@ -34,19 +44,32 @@ const PhoneBook = () => {
                 break;
             }
         }
+        await axios.delete("http://localhost:8800/people/"+id);
         setPeople(temp);
     }
 
-    const handlePriority = (id) => {
+    const handlePriority = async (id) => {
         let temp = [...people];
+        let a;
         for(let i = 0; i < people.length; i++) {
             if(temp[i].id == id) {
+                a = !temp[i].priority;
                 temp[i].priority = !temp[i].priority;
                 break;
             }
         }
+        a = a == true ? {
+          priority: 1
+        } : {
+          priority: 0
+        };
+        console.log(id);
+        const res = await axios.put("http://localhost:8800/people/"+id, a);
+        console.log(res);
         setPeople(temp);
     }
+
+    
 
 
   return (
@@ -65,18 +88,26 @@ const PhoneBook = () => {
             Fill in the information of the user.
           </Typography>
           <form
-            onSubmit={(event) => {
+            onSubmit={async (event) => {
               event.preventDefault();
               const myId = uuid();
-              setOpenModal(false);
               setPeople([...people, {
                 name: userName,
-                number: userNumber,
+                phone: userNumber,
                 email: userEmail,
                 priority: false,
-                id: myId
               }]);
 
+              const person = {
+                name: userName,
+                phone: userNumber,
+                email: userEmail,
+                priority: 0
+              }
+
+              const res = await axios.post("http://localhost:8800/people", person);
+              setOpenModal(false);
+              
               setName('');
               setNum('');
               setEmail('');
@@ -119,3 +150,7 @@ const PhoneBook = () => {
 }
 
 export default PhoneBook
+
+/*
+
+    */

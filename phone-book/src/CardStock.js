@@ -24,7 +24,7 @@ const CardStock = (props) => {
           {props.person.name}
         </div>
         <div className='ml-[20px] w-[150px]'>
-          {props.person.number}
+          {props.person.phone}
         </div>
         <div className='ml-[20px] w-[150px]'>
           {props.person.email}
